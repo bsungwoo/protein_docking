@@ -24,8 +24,8 @@ IF ERRORLEVEL 1 (
     conda create -n docking python=3.9 -y
     call conda activate docking
     echo Installing required Python packages...
-    pip install pandas requests pubchempy git+https://github.com/jaimergp/autodocktools-prepare-py3k.git
     conda install -y -c conda-forge openbabel
+    pip install pandas requests pubchempy git+https://github.com/jaimergp/autodocktools-prepare-py3k.git
 ) ELSE (
     echo [INFO] Conda environment 'docking' exists. Activating it...
     call conda activate docking
