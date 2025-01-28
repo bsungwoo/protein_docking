@@ -10,7 +10,7 @@ def interactive_docking_pipeline():
     # Get user inputs interactively
     input_csv = str(input('Enter the full path to the input CSV file (ligand-receptor pairs): '))
     vina_exe_path = str(input('Enter the full path to vina.exe: '))
-    outdir = str(input('Enter the directory to save the output files: '))
+    outdir = str(input('Enter the directory to save the output files: ') or 'vina_result')
     center_x = float(input('Enter the docking center X coordinate (default: 10.819): ') or 10.819)
     center_y = float(input('Enter the docking center Y coordinate (default: 2.607): ') or 2.607)
     center_z = float(input('Enter the docking center Z coordinate (default: -53.797): ') or -53.797)

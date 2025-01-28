@@ -33,7 +33,7 @@ IF ERRORLEVEL 1 (
 
 REM Run the Python docking pipeline
 echo Running interactive docking pipeline...
-python interactive_docking_pipeline.py
+python interactive_docking.py
 
 REM Completion message
 echo ========================================

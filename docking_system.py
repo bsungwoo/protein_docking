@@ -81,13 +81,13 @@ def process_docking(args):
 
     receptor += ".pdbqt"
     ligand += ".pdbqt"
-    receptor = os.path.join(output_folder, 'receptors', receptor)
-    ligand = os.path.join(output_folder, 'ligands', ligand)
+    receptor_ = os.path.join(output_folder, 'receptors', receptor)
+    ligand_ = os.path.join(output_folder, 'ligands', ligand)
     
     # Generate the A.txt content
     command_txt_content = f"""
-receptor = {receptor}
-ligand = {ligand}
+receptor = {receptor_}
+ligand = {ligand_}
 
 center_x = {center_x}
 center_y = {center_y}
