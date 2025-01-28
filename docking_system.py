@@ -1,8 +1,45 @@
 import os
+import re
 import pandas as pd
 import subprocess
 from multiprocessing import Pool, cpu_count
-import shutil
+
+def process_vina_results(df):
+    """
+    Processes an AutoDock Vina output dataframe and extracts docking results.
+
+    Parameters:
+        df (pd.DataFrame): Original dataframe with columns:
+            ["Receptor", "Ligand", "Config File", "Output File", "Vina Output"]
+
+    Returns:
+        df_mod (pd.DataFrame): Processed dataframe with columns:
+            ["Receptor", "Ligand", "Pose", "mode_kcal_mol", "affinity_rmsd_lb", "dist_from_best_mode_rmsd_ub"]
+    """
+    docking_results = []
+    
+    for _, row in df.iterrows():
+        receptor = row["Receptor"]
+        ligand = row["Ligand"]
+        vina_output = row["Vina Output"]
+
+        # Extract docking results using regex
+        matches = re.findall(r"(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)", vina_output)
+
+        for match in matches:
+            docking_results.append({
+                "Receptor": receptor,
+                "Ligand": ligand,
+                "Pose": int(match[0]),  # Pose number (1-9)
+                "mode_kcal_mol": float(match[1]),  # Affinity (kcal/mol)
+                "affinity_rmsd_lb": float(match[2]),  # RMSD lower bound
+                "dist_from_best_mode_rmsd_ub": float(match[3])  # RMSD upper bound
+            })
+
+    # Convert extracted results into a new dataframe
+    df_mod = pd.DataFrame(docking_results)
+    return df_mod
+
 
 def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, center_z, size_x, size_y, size_z, energy_range, exhaustiveness):
     """
@@ -47,11 +84,15 @@ def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, cen
         docking_results = pool.map(process_docking, rows)
 
     # Save the docking results to a CSV file in the output folder
-    output_csv = os.path.join(output_folder, "docking_results.csv")
-    results_df = pd.DataFrame(docking_results)
-    results_df.to_csv(output_csv, index=False)
+    output_csv_raw = os.path.join(output_folder, "docking_results_raw.csv")
+    results_df_raw = pd.DataFrame(docking_results)
+    results_df_raw.to_csv(output_csv_raw, index=False)
 
-    print(f"Docking process completed. Results saved in {output_csv}.")
+    output_csv_proc = os.path.join(output_folder, "docking_results_raw.csv")
+    results_df_proc = process_vina_results(results_df_raw)
+    results_df_proc.to_csv(output_csv_proc, index=False)
+
+    print(f"Docking process completed. Results saved in {output_csv_proc}.")
 
 
 def process_docking(args):
@@ -79,10 +120,10 @@ def process_docking(args):
         exhaustiveness
     ) = args
 
-    receptor += ".pdbqt"
-    ligand += ".pdbqt"
-    receptor_ = os.path.join(output_folder, 'receptors', receptor)
-    ligand_ = os.path.join(output_folder, 'ligands', ligand)
+    receptor_ = receptor + ".pdbqt"
+    ligand_ = ligand + ".pdbqt"
+    receptor_ = os.path.join(output_folder, 'receptors', receptor_)
+    ligand_ = os.path.join(output_folder, 'ligands', ligand_)
     
     # Generate the A.txt content
     command_txt_content = f"""
