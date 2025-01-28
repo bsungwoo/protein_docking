@@ -52,7 +52,7 @@ def pdb_to_pdbqt_mgltools(receptor_pdb, receptor_pdbqt):
         mol,
         mode='automatic',
         repairs='hydrogens',
-        charges_to_add='gasteiger',
+        charges_to_add='Kollman',
         cleanup='waters',
         outputfilename=receptor_pdbqt
     )
