@@ -28,6 +28,7 @@ An interactive script for testing docking between proteins and small molecules. 
 #### 2. Python Libraries
 Install the required Python libraries:
 ```bash
-conda create -n docking python=3.9
+conda create -n docking python=3.9 -y
+conda activate docking
 conda install -y -c conda-forge openbabel
 pip install pandas requests pubchempy git+https://github.com/jaimergp/autodocktools-prepare-py3k.git
