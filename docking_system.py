@@ -4,9 +4,12 @@ import pandas as pd
 import subprocess
 from multiprocessing import Pool, cpu_count
 
+import pandas as pd
+import re
+
 def process_vina_results(df):
     """
-    Processes an AutoDock Vina output dataframe and extracts docking results.
+    Processes an AutoDock Vina output dataframe and extracts docking results, including grid parameters and seed.
 
     Parameters:
         df (pd.DataFrame): Original dataframe with columns:
@@ -14,29 +17,66 @@ def process_vina_results(df):
 
     Returns:
         df_mod (pd.DataFrame): Processed dataframe with columns:
-            ["Receptor", "Ligand", "Pose", "mode_kcal_mol", "affinity_rmsd_lb", "dist_from_best_mode_rmsd_ub"]
+            ["Receptor", "Ligand", "Pose", "mode_kcal_mol", "affinity_rmsd_lb", "dist_from_best_mode_rmsd_ub",
+             "Grid_X", "Grid_Y", "Grid_Z", "Size_X", "Size_Y", "Size_Z", "Grid_Space", "Exhaustiveness", "Seed"]
     """
     docking_results = []
-    
+
     for _, row in df.iterrows():
         receptor = row["Receptor"]
         ligand = row["Ligand"]
         vina_output = row["Vina Output"]
 
-        # Extract docking results using regex
-        matches = re.findall(r"(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)", vina_output)
+        # Pose pattern
+        pose_pattern = r"^\s*(\d+)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)"
+        pose_matches = re.findall(pose_pattern, vina_output, re.MULTILINE)
 
-        for match in matches:
+        # Extract grid center (X, Y, Z)
+        grid_center_match = re.search(
+            r"Grid center:\s+X\s+(-?\d+\.\d+)\s+Y\s+(-?\d+\.\d+)\s+Z\s+(-?\d+\.\d+)",
+            vina_output
+        )
+        grid_x, grid_y, grid_z = grid_center_match.groups() if grid_center_match else (None, None, None)
+
+        # Extract grid size (X, Y, Z)
+        grid_size_match = re.search(
+            r"Grid size\s+:\s+X\s+(\d+)\s+Y\s+(\d+)\s+Z\s+(\d+)",
+            vina_output
+        )
+        size_x, size_y, size_z = grid_size_match.groups() if grid_size_match else (None, None, None)
+
+        # Extract grid space
+        grid_space_match = re.search(r"Grid space\s+:\s+(\d+\.\d+)", vina_output)
+        grid_space = grid_space_match.group(1) if grid_space_match else None
+
+        # Extract exhaustiveness
+        exhaustiveness_match = re.search(r"Exhaustiveness:\s+(\d+)", vina_output)
+        exhaustiveness = exhaustiveness_match.group(1) if exhaustiveness_match else None
+
+        # Extract seed
+        seed_match = re.search(r"random seed:\s+(-?\d+)", vina_output)
+        seed = seed_match.group(1) if seed_match else None
+
+        # Populate the results
+        for match in pose_matches:
             docking_results.append({
                 "Receptor": receptor,
                 "Ligand": ligand,
-                "Pose": int(match[0]),  # Pose number (1-9)
+                "Pose": int(match[0]),  # Pose number (1 to n)
                 "mode_kcal_mol": float(match[1]),  # Affinity (kcal/mol)
                 "affinity_rmsd_lb": float(match[2]),  # RMSD lower bound
-                "dist_from_best_mode_rmsd_ub": float(match[3])  # RMSD upper bound
+                "dist_from_best_mode_rmsd_ub": float(match[3]),  # RMSD upper bound
+                "Grid_X": float(grid_x) if grid_x else None,
+                "Grid_Y": float(grid_y) if grid_y else None,
+                "Grid_Z": float(grid_z) if grid_z else None,
+                "Size_X": int(size_x) if size_x else None,
+                "Size_Y": int(size_y) if size_y else None,
+                "Size_Z": int(size_z) if size_z else None,
+                "Grid_Space": float(grid_space) if grid_space else None,
+                "Exhaustiveness": int(exhaustiveness) if exhaustiveness else None,
+                "Seed": int(seed) if seed else None
             })
 
-    # Convert extracted results into a new dataframe
     df_mod = pd.DataFrame(docking_results)
     return df_mod
 
