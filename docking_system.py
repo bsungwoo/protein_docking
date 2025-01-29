@@ -88,7 +88,7 @@ def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, cen
     results_df_raw = pd.DataFrame(docking_results)
     results_df_raw.to_csv(output_csv_raw, index=False)
 
-    output_csv_proc = os.path.join(output_folder, "docking_results_raw.csv")
+    output_csv_proc = os.path.join(output_folder, "docking_results_final.csv")
     results_df_proc = process_vina_results(results_df_raw)
     results_df_proc.to_csv(output_csv_proc, index=False)
 
