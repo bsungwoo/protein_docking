@@ -1,5 +1,3 @@
-## README: protein_docking
-
 # Protein Docking
 An interactive script for testing docking between proteins and small molecules. This pipeline automates the process of downloading receptor and ligand files, converting them to `.pdbqt` format, and running docking simulations using **AutoDock Vina**. The script provides a user-friendly interface for inputting custom parameters and file paths.
 
@@ -30,5 +28,6 @@ An interactive script for testing docking between proteins and small molecules. 
 #### 2. Python Libraries
 Install the required Python libraries:
 ```bash
-pip install pandas requests pubchempy git+https://github.com/jaimergp/autodocktools-prepare-py3k.git
+conda create -n docking python=3.9
 conda install -y -c conda-forge openbabel
+pip install pandas requests pubchempy git+https://github.com/jaimergp/autodocktools-prepare-py3k.git
