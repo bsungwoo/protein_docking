@@ -45,7 +45,7 @@ def pdb_to_pdbqt_mgltools(receptor_pdb, receptor_pdbqt):
 
     # Prepare receptor as in 'prepare_receptor4.py -A hydrogens -U waters'
     #   - repairs='hydrogens': adds hydrogens if missing
-    #   - charges_to_add='gasteiger': add Gasteiger partial charges
+    #   - charges_to_add='Kollman': add Kollman partial charges
     #   - cleanup='waters': remove water residues
     #   - mode='automatic': writes out the file without user interaction
     _ = AD4ReceptorPreparation(
@@ -56,7 +56,6 @@ def pdb_to_pdbqt_mgltools(receptor_pdb, receptor_pdbqt):
         cleanup='waters',
         outputfilename=receptor_pdbqt
     )
-    
 
     print(f"[INFO] Wrote receptor PDBQT: {receptor_pdbqt}")
 
