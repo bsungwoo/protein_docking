@@ -19,6 +19,7 @@ def interactive_docking_pipeline():
     size_z = float(input('Enter the docking box size Z (default: 60): ') or 60)
     energy_range = int(input('Enter the energy range parameter (default: 4): ') or 4)
     exhaustiveness = int(input('Enter the exhaustiveness parameter (default: 8): ') or 8)
+    seed_num = int(input('Enter the seed number (default: 1234): ') or 1234)
 
     # Validate input CSV
     if not os.path.exists(input_csv):
@@ -49,7 +50,8 @@ def interactive_docking_pipeline():
         size_y=size_y,
         size_z=size_z,
         energy_range=energy_range,
-        exhaustiveness=exhaustiveness
+        exhaustiveness=exhaustiveness,
+        seed_num = seed_num
     )
 
     print("\nDocking pipeline completed successfully!")

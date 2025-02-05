@@ -81,7 +81,7 @@ def process_vina_results(df):
     return df_mod
 
 
-def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, center_z, size_x, size_y, size_z, energy_range, exhaustiveness):
+def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, center_z, size_x, size_y, size_z, energy_range, exhaustiveness, seed_num):
     """
     Main function to handle docking with user-specified parameters.
 
@@ -93,6 +93,7 @@ def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, cen
         size_x, size_y, size_z (int): Dimensions of the docking box.
         energy_range (int): Energy range parameter for Vina.
         exhaustiveness (int): Exhaustiveness parameter for Vina.
+        seed_num (int): Seed number for Vina.
     """
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)
@@ -114,7 +115,8 @@ def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, cen
             size_y,
             size_z,
             energy_range,
-            exhaustiveness
+            exhaustiveness,
+            seed_num
         )
         for _, row in data.iterrows()
     ]
@@ -157,7 +159,8 @@ def process_docking(args):
         size_y,
         size_z,
         energy_range,
-        exhaustiveness
+        exhaustiveness,
+        seed_num
     ) = args
 
     receptor_ = receptor + ".pdbqt"
@@ -192,7 +195,7 @@ exhaustiveness = {exhaustiveness}
 
     # Run the vina command
     vina_output_path = os.path.join(dock_dir, f"dock_{ligand}_{receptor}.pdbqt")
-    vina_command = f"{vina_exe_path} --config {command_txt_path} --out {vina_output_path}"
+    vina_command = f"{vina_exe_path} --config {command_txt_path} --out {vina_output_path} --seed {seed_num}"
     try:
         # Capture the output of the vina command
         result = subprocess.run(vina_command, shell=True, check=True, capture_output=True, text=True)
@@ -208,8 +211,6 @@ exhaustiveness = {exhaustiveness}
         "Output File": vina_output_path,
         "Vina Output": result_status  # Include detailed output from Vina
     }
-
-
 if __name__ == "__main__":
     # Example usage with user-specified parameters
     input_csv = "ligand_receptor.csv"  # Replace with your input CSV file path
@@ -221,6 +222,7 @@ if __name__ == "__main__":
     size_x, size_y, size_z = 60, 60, 60
     energy_range = 4
     exhaustiveness = 8
+    seed_num = 1234
 
     # Run the docking pipeline
     run_docking(
@@ -234,5 +236,6 @@ if __name__ == "__main__":
         size_y,
         size_z,
         energy_range,
-        exhaustiveness
+        exhaustiveness,
+        seed_num
     )
