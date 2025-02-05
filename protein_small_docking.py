@@ -1,10 +1,19 @@
 import os
+import re
 import pandas as pd
 import requests
 import pubchempy as pcp
 from openbabel import openbabel
 from MolKit import Read
 from AutoDockTools.MoleculePreparation import AD4ReceptorPreparation
+
+def is_pubchem_cid(s):
+    """
+    Checks if the input string follows the PubChem CID format:
+    - Should be a positive integer.
+    - Should not have leading zeros unless it's "0".
+    """
+    return bool(re.fullmatch(r"[1-9]\d*|0", s))
 
 def download_ligand_sdf(ligand_name, output_sdf):
     """
@@ -13,14 +22,15 @@ def download_ligand_sdf(ligand_name, output_sdf):
     'output_sdf' is the path where the SDF should be saved.
     """
     try:
+        namespace_choice = 'cid' if is_pubchem_cid(str(ligand_name)) else 'name'
         # 'name' namespace means we're looking up by compound name
         # record_type='3d' requests 3D coordinates from PubChem
         pcp.download(
             'SDF',
             output_sdf,
             identifier=ligand_name,
-            namespace='name',
-            record_type='3d', 
+            namespace=namespace_choice,
+            record_type='3d',
             overwrite=True  # Overwrite existing file if present
         )
         print(f"[INFO] Successfully downloaded SDF for '{ligand_name}' -> {output_sdf}")
