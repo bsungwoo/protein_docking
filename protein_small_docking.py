@@ -139,8 +139,8 @@ def download_pdbqt_files(csv_file, out_dir):
     # Read the CSV
     df_lr = pd.read_csv(csv_file)
     for idx in range(len(df_lr)):
-        ligand_name = df_lr.iloc[idx]['ligand'].strip()
-        receptor_id = df_lr.iloc[idx]['receptor'].strip()
+        ligand_name = df_lr.iloc[idx]['ligand'].astype(str).strip()
+        receptor_id = df_lr.iloc[idx]['receptor'].astype(str).strip()
 
         print(f"\n=== Processing {ligand_name} vs {receptor_id} ===")
 
