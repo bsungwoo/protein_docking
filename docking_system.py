@@ -100,6 +100,8 @@ def run_docking(input_csv, vina_exe_path, output_folder, center_x, center_y, cen
 
     # Load the receptor-ligand pairs from the input CSV
     data = pd.read_csv(input_csv)
+    data['ligand'] = data['ligand'].astype(str)
+    data['receptor'] = data['receptor'].astype(str)
 
     # Prepare data for multiprocessing
     rows = [
